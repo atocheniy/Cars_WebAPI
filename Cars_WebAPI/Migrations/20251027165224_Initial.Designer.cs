@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cars_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251027161642_addCarsOwners")]
-    partial class addCarsOwners
+    [Migration("20251027165224_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -295,11 +295,13 @@ namespace Cars_WebAPI.Migrations
 
             modelBuilder.Entity("Cars_WebAPI.Models.Car", b =>
                 {
-                    b.HasOne("Cars_WebAPI.Models.Owner", null)
+                    b.HasOne("Cars_WebAPI.Models.Owner", "Owner")
                         .WithMany("Cars")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

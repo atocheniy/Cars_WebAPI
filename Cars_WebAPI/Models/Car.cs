@@ -14,7 +14,6 @@ namespace Cars_WebAPI.Models
         public string Brand { get; set; }
 
         [Required]
-        [EmailAddress]
         public string Model { get; set; }
 
         [Phone]
@@ -24,7 +23,12 @@ namespace Cars_WebAPI.Models
         public int Price { get; set; }
         public int Data { get; set; }
         public int Weight { get; set; }
+
+
+        [Display(Name = "Владелец")]
         public int OwnerId { get; set; }
 
+        [ForeignKey("OwnerId")]
+        public Owner Owner { get; set; }
     }
 }
