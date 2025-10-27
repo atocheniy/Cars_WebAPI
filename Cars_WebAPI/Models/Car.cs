@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Cars_WebAPI.Models
 {
-    [Table("MyCars")]
-    public class Cars
+    [Table("MyCar")]
+    public class Car
     {
         public int Id { get; set; }
 

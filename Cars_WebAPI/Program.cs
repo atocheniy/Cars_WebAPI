@@ -12,9 +12,10 @@ namespace Cars_WebAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var connectionString = builder.Configuration.GetConnectionString("Cars_WebAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'Cars_WebAPIContextConnection' not found.");;
+            var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");;
 
-            builder.Services.AddDbContext<Cars_WebAPIContext>(options => options.UseSqlServer(connectionString));
+            builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+
             builder.Services.AddIdentity<Cars_WebAPIUser, IdentityRole>(
                 option =>
                 {
@@ -24,7 +25,7 @@ namespace Cars_WebAPI
                     option.Password.RequireUppercase = false;
                     option.Password.RequireLowercase = false;
                 }
-            ).AddEntityFrameworkStores<Cars_WebAPIContext>()
+            ).AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
             // настройка генерации токенов

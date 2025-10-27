@@ -1,16 +1,22 @@
 ﻿using Cars_WebAPI.Areas.Identity.Data;
+using Cars_WebAPI.Models;
+using Cars_WebAPI.Areas.Identity.Data;
+using Cars_WebAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cars_WebAPI.Data;
 
-public class Cars_WebAPIContext : IdentityDbContext<Cars_WebAPIUser>
+public class ApplicationDbContext : IdentityDbContext<Cars_WebAPIUser>
 {
-    public Cars_WebAPIContext(DbContextOptions<Cars_WebAPIContext> options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
+
+    public virtual DbSet<Car> Cars { get; set; }
+    public virtual DbSet<Owner> Owners { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
