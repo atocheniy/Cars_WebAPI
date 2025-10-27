@@ -1,0 +1,86 @@
+﻿@{
+    ViewBag.Title = "Owners";
+}
+
+<h2>Owners</h2>
+
+<table id="ownersTable" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>FullName</th>
+            <th>Address</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<br />
+<input type="button" class="btn" id="create" value="Create" />
+<input type="button" class="btn" id="update" value="Update" />
+<br />
+
+<script type="text/javascript">
+
+    $('#create').click(function (e) {
+        //alert('create');
+
+        $.ajax({
+            url: '/api/owners',
+            method: "POST",
+            data: JSON.stringify({
+                ow_id: "555-888-999",
+                ow_fname: "Maria Rzhevskaya",
+                email:"mariyarzhev@ya.ru",
+                phone: "12356",
+                address: "Lenina st., 20",
+            }),
+            dataType: 'JSON',
+            contentType: 'application/json',
+            beforeSend: function (xheader) {
+                var token = sessionStorage.getItem(tokenKey);
+                xheader.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data, textStatus, xhr) {
+                console.log(data);
+                showAllAuthors();
+            },
+            error: function (data, textStatus, errorThrown) {
+                console.log(data);
+            }
+        });
+    });
+
+    $('#update').click(function (e) {
+        //alert('update');
+
+        $.ajax({
+            url: '/api/owners/555-888-999',
+            method: "PUT",
+            data: JSON.stringify({
+                au_id: "555-888-999",
+                au_fname: "Maria Petrova",
+                address: "Lenina st., 20",
+                email: "marrzhe@ya.ru",
+                phone: "12356",
+            }),
+            dataType: 'JSON',
+            contentType: 'application/json',
+            beforeSend: function (xheader) {
+                var token = sessionStorage.getItem(tokenKey);
+                xheader.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data, textStatus, xhr) {
+                console.log(data);
+                showAllAuthors();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error in Operation');
+            }
+        });
+    });
+  
+</script>
