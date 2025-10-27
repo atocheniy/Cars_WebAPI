@@ -16,8 +16,8 @@ namespace Cars_WebAPI.Models
         [Required]
         public string Model { get; set; }
 
-
-        public int Speed { get; set; }
+        [Phone]
+        public string Speed { get; set; }
 
         [Required]
         public int Price { get; set; }
