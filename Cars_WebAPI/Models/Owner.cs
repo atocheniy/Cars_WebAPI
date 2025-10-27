@@ -19,7 +19,7 @@ namespace Cars_WebAPI.Models
 
         [Phone]
         public string Phone { get; set; }
-
+            
         [Required]
         public string Address { get; set; }
 
