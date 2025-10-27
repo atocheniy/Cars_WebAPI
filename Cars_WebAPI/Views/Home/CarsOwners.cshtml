@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Cars_WebAPI.Models.CarOwnerViewModel>
+
+@{
+    ViewData["Title"] = "CarsOwners";
+}
+
+<h1>CarsOwners</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Price</th>
+            <th>Owner Name</th>
+            <th>Owner Email</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CarBrand</td>
+                <td>@item.CarModel</td>
+                <td>@item.CarPrice</td>
+                <td>@item.OwnerFullName</td>
+                <td>@item.OwnerEmail</td>
+            </tr>
+        }
+    </tbody>
+</table>

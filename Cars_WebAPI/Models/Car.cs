@@ -24,6 +24,6 @@ namespace Cars_WebAPI.Models
         public int Data { get; set; }
         public int Weight { get; set; }
         public int OwnerId { get; set; }
-
+        public Owner Owner { get; set; }
     }
 }
