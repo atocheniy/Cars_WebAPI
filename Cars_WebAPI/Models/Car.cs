@@ -16,7 +16,7 @@ namespace Cars_WebAPI.Models
         [Required]
         public string Model { get; set; }
 
-        [Phone]
+        [Required]
         public string Speed { get; set; }
 
         [Required]
@@ -27,11 +27,8 @@ namespace Cars_WebAPI.Models
 
         [Display(Name = "Владелец")]
         public int OwnerId { get; set; }
-<<<<<<< HEAD
-=======
 
         [ForeignKey("OwnerId")]
->>>>>>> 686be0b9c04084c8e68b2de33cdc605fa755b1c5
         public Owner Owner { get; set; }
     }
 }
