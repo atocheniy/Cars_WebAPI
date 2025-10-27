@@ -46,6 +46,7 @@ namespace Cars_WebAPI.API
         // GET: Cars/Create
         public IActionResult Create()
         {
+            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName");
             return View();
         }
 
@@ -56,6 +57,7 @@ namespace Cars_WebAPI.API
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Brand,Model,Speed,Price,Data,Weight,OwnerId")] Car car)
         {
+            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName");
             if (ModelState.IsValid)
             {
                 _context.Add(car);
@@ -78,6 +80,8 @@ namespace Cars_WebAPI.API
             {
                 return NotFound();
             }
+
+            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName", car.OwnerId);
             return View(car);
         }
 
@@ -88,6 +92,7 @@ namespace Cars_WebAPI.API
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model,Speed,Price,Data,Weight,OwnerId")] Car car)
         {
+            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName", car.OwnerId);
             if (id != car.Id)
             {
                 return NotFound();

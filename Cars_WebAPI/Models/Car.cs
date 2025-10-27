@@ -23,7 +23,15 @@ namespace Cars_WebAPI.Models
         public int Price { get; set; }
         public int Data { get; set; }
         public int Weight { get; set; }
+
+
+        [Display(Name = "Владелец")]
         public int OwnerId { get; set; }
+<<<<<<< HEAD
+=======
+
+        [ForeignKey("OwnerId")]
+>>>>>>> 686be0b9c04084c8e68b2de33cdc605fa755b1c5
         public Owner Owner { get; set; }
     }
 }

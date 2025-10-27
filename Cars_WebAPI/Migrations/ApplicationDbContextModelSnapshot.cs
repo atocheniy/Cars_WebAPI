@@ -292,11 +292,13 @@ namespace Cars_WebAPI.Migrations
 
             modelBuilder.Entity("Cars_WebAPI.Models.Car", b =>
                 {
-                    b.HasOne("Cars_WebAPI.Models.Owner", null)
+                    b.HasOne("Cars_WebAPI.Models.Owner", "Owner")
                         .WithMany("Cars")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
