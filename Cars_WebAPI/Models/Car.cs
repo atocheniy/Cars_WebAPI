@@ -14,7 +14,6 @@ namespace Cars_WebAPI.Models
         public string Brand { get; set; }
 
         [Required]
-        [EmailAddress]
         public string Model { get; set; }
 
         [Phone]
