@@ -66,6 +66,9 @@ namespace Cars_WebAPI
             app.UseAuthorization();
             app.MapControllers();
 
+            app.UseWebSockets();
+            // app.UseWebSocketHandler();
+
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",

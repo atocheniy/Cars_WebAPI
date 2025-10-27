@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Cars_WebAPI.Data;
+using Cars_WebAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Cars_WebAPI.Data;
-using Cars_WebAPI.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cars_WebAPI.API
 {
@@ -22,7 +23,8 @@ namespace Cars_WebAPI.API
         // GET: Cars
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Cars.ToListAsync());
+            var applicationDbContext = _context.Cars.Include(c => c.Owner);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Cars/Details/5
@@ -44,6 +46,7 @@ namespace Cars_WebAPI.API
         }
 
         // GET: Cars/Create
+        [Authorize]
         public IActionResult Create()
         {
             ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName");
@@ -55,19 +58,24 @@ namespace Cars_WebAPI.API
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Create([Bind("Id,Brand,Model,Speed,Price,Data,Weight,OwnerId")] Car car)
         {
-            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName");
+            ModelState.Remove("Owner");
+
             if (ModelState.IsValid)
             {
                 _context.Add(car);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName");
             return View(car);
         }
 
         // GET: Cars/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -90,9 +98,11 @@ namespace Cars_WebAPI.API
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model,Speed,Price,Data,Weight,OwnerId")] Car car)
         {
-            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName", car.OwnerId);
+            ModelState.Remove("Owner");
+
             if (id != car.Id)
             {
                 return NotFound();
@@ -118,10 +128,13 @@ namespace Cars_WebAPI.API
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName", car.OwnerId);
             return View(car);
         }
 
         // GET: Cars/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -142,6 +155,7 @@ namespace Cars_WebAPI.API
         // POST: Cars/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var car = await _context.Cars.FindAsync(id);
