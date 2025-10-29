@@ -16,16 +16,19 @@ namespace Cars_WebAPI.API
     {
         private readonly UserManager<Cars_WebAPIUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly SignInManager<Cars_WebAPIUser> _signInManager;
         private readonly ApplicationDbContext _context;
 
         public UserController(
              UserManager<Cars_WebAPIUser> userManager,
+             SignInManager<Cars_WebAPIUser> signInManager,
              ApplicationDbContext context,
              IConfiguration configuration
          )
         {
             _configuration = configuration;
             _userManager = userManager;
+            _signInManager = signInManager;
             _context = context;
         }
 
@@ -36,6 +39,8 @@ namespace Cars_WebAPI.API
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
                 var guid = Guid.NewGuid().ToString();
                 // https://datatracker.ietf.org/doc/html/rfc7519#section-4
                 var claims = new List<Claim> {

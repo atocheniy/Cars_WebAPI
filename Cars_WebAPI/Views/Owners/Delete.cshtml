@@ -37,9 +37,37 @@
         </dd>
     </dl>
     
-    <form asp-action="Delete">
+    <form id="deleteOwnerForm">
         <input type="hidden" asp-for="Id" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>
 </div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#deleteOwnerForm").on("submit", function (e) {
+                e.preventDefault();
+
+                var ownerId = $("#Id").val();
+
+                $.ajax({
+                    url: "/api/Owners/" + ownerId,
+                    type: "DELETE",
+                    beforeSend: function (xheader) {
+                        var token = sessionStorage.getItem(tokenKey);
+                        xheader.setRequestHeader("Authorization", "Bearer " + token);
+                    },
+                    success: function (result) {
+                        window.location.href = "/Owners";
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error deleting owner: " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+}

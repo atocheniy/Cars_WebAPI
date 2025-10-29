@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" id="editCarForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
@@ -60,5 +60,45 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $("#editCarForm").on("submit", function (e) {
+                e.preventDefault();
+
+                var carId = $("#Id").val();
+
+                var carData = {
+                    id: parseInt(carId), 
+                    brand: $("#Brand").val(),
+                    model: $("#Model").val(),
+                    speed: parseInt($("#Speed").val()),
+                    price: parseFloat($("#Price").val()),
+                    data: $("#Data").val(),
+                    weight: parseFloat($("#Weight").val()),
+                    ownerId: parseInt($("#OwnerId").val())
+                };
+
+                $.ajax({
+                    url: "/api/Cars/" + carId,
+                    type: "PUT",
+                    contentType: "application/json",
+                    beforeSend: function (xheader) {
+                        var token = sessionStorage.getItem(tokenKey);
+                        xheader.setRequestHeader("Authorization", "Bearer " + token);
+                    },
+                    data: JSON.stringify(carData),
+                    success: function (result) {
+                        window.location.href = "/Cars";
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error updating car: " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
 }

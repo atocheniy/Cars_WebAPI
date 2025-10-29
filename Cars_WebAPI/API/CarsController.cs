@@ -1,8 +1,9 @@
 ﻿using Cars_WebAPI.Data;
 using Cars_WebAPI.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,163 +12,118 @@ using System.Threading.Tasks;
 
 namespace Cars_WebAPI.API
 {
-    public class CarsController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public class CarsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
         public CarsController(ApplicationDbContext context)
         {
-            _context = context;
+            _context = context;         
         }
 
-        // GET: Cars
-        public async Task<IActionResult> Index()
+        // GET: api/Cars
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Car>>> GetCars()
         {
-            var applicationDbContext = _context.Cars.Include(c => c.Owner);
-            return View(await applicationDbContext.ToListAsync());
+            // return await _context.Cars.Include(c => c.Owner).ToListAsync();
+            return await _context.Cars.ToListAsync();
         }
 
-        // GET: Cars/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: api/Cars/5
+        [AllowAnonymous]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Car>> GetCar(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var car = await _context.Cars.Include(c => c.Owner)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-            var car = await _context.Cars
-                .FirstOrDefaultAsync(m => m.Id == id);
             if (car == null)
             {
                 return NotFound();
             }
 
-            return View(car);
+            return car;
         }
 
-        // GET: Cars/Create
+        // PUT: api/Cars/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
         [Authorize]
-        public IActionResult Create()
+        public async Task<IActionResult> PutCar(int id, Car car)
         {
-            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName");
-            return View();
-        }
-
-        // POST: Cars/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Create([Bind("Id,Brand,Model,Speed,Price,Data,Weight,OwnerId")] Car car)
-        {
-            ModelState.Remove("Owner");
-
-            if (ModelState.IsValid)
-            {
-                _context.Add(car);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-
-            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName");
-            return View(car);
-        }
-
-        // GET: Cars/Edit/5
-        [Authorize]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var car = await _context.Cars.FindAsync(id);
-            if (car == null)
-            {
-                return NotFound();
-            }
-
-            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName", car.OwnerId);
-            return View(car);
-        }
-
-        // POST: Cars/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model,Speed,Price,Data,Weight,OwnerId")] Car car)
-        {
-            ModelState.Remove("Owner");
-
             if (id != car.Id)
             {
+                return BadRequest();
+            }
+
+            var carToUpdate = await _context.Cars.FindAsync(id);
+
+            if (carToUpdate == null)
+            {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            carToUpdate.Brand = car.Brand;
+            carToUpdate.Model = car.Model;
+            carToUpdate.Speed = car.Speed;
+            carToUpdate.Price = car.Price;
+            carToUpdate.Data = car.Data;
+            carToUpdate.Weight = car.Weight;
+            carToUpdate.OwnerId = car.OwnerId;
+
+            try
             {
-                try
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CarExists(id))
                 {
-                    _context.Update(car);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!CarExists(car.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
 
-            ViewData["OwnerId"] = new SelectList(_context.Owners, "Id", "FullName", car.OwnerId);
-            return View(car);
+            return NoContent();
         }
 
-        // GET: Cars/Delete/5
+        // POST: api/Cars
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<ActionResult<Car>> PostCar(Car car)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            _context.Cars.Add(car);
+            await _context.SaveChangesAsync();
 
-            var car = await _context.Cars
-                .FirstOrDefaultAsync(m => m.Id == id);
+            return CreatedAtAction("GetCar", new { id = car.Id }, car);
+        }
+
+        // DELETE: api/Cars/5
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteCar(int id)
+        {
+            var car = await _context.Cars.FindAsync(id);
             if (car == null)
             {
                 return NotFound();
             }
 
-            return View(car);
-        }
-
-        // POST: Cars/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var car = await _context.Cars.FindAsync(id);
-            if (car != null)
-            {
-                _context.Cars.Remove(car);
-            }
-
+            _context.Cars.Remove(car);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return NoContent();
         }
 
+        [AllowAnonymous]
         private bool CarExists(int id)
         {
             return _context.Cars.Any(e => e.Id == id);

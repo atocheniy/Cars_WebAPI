@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form id="createOwnerForm" asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="FullName" class="control-label"></label>
@@ -43,6 +43,41 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $("#createOwnerForm").on("submit", function (e) {
+                e.preventDefault();
+
+                var ownerData = {
+                    fullName: $("#FullName").val(),
+                    email: $("#Email").val(),
+                    phone: $("#Phone").val(),
+                    address: $("#Address").val(),
+                };
+
+                $.ajax({
+                    url: "/api/Owners/",
+                    type: "POST",
+                    contentType: "application/json",
+                    beforeSend: function (xheader) {
+                        var token = sessionStorage.getItem(tokenKey);
+                        xheader.setRequestHeader("Authorization", "Bearer " + token);
+                    },
+                    data: JSON.stringify(ownerData),
+                    success: function (result) {
+                        window.location.href = "/Owners";
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error: " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
 }
