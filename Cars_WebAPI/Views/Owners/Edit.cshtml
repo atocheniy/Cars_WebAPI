@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" id="editOwnerForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
@@ -45,5 +45,42 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $("#editOwnerForm").on("submit", function (e) {
+                e.preventDefault();
+
+                var ownerId = $("#Id").val();
+
+                var ownerData = {
+                    id: parseInt(ownerId),
+                    fullName: $("#FullName").val(),
+                    email: $("#Email").val(),
+                    phone: $("#Phone").val(),
+                    address: $("#Address").val(),
+                };
+
+                $.ajax({
+                    url: "/api/Owners/" + ownerId,
+                    type: "PUT",
+                    contentType: "application/json",
+                    beforeSend: function (xheader) {
+                        var token = sessionStorage.getItem(tokenKey);
+                        xheader.setRequestHeader("Authorization", "Bearer " + token);
+                    },
+                    data: JSON.stringify(ownerData),
+                    success: function (result) {
+                        window.location.href = "/Owners";
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error updating owner: " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
 }

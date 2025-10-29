@@ -80,4 +80,32 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    @* <script>
+        $(document).ready(function () {
+            $("#account").on("submit", function (e) {
+                e.preventDefault();
+               
+                var loginData = {
+                    username: $("#Input_Email").val(),
+                    password: $("#Input_Password").val()
+                };
+
+                $.ajax({
+                    url: "/api/User/Login", 
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(loginData),
+                    success: function (response) {
+                        sessionStorage.setItem("jwt_token", response.access_token);
+
+                        const returnUrl = new URLSearchParams(window.location.search).get('ReturnUrl');
+                        window.location.href = returnUrl || "/";
+                    },
+                    error: function (xhr) {
+                        alert("Login failed! Check your credentials.");
+                    }
+                });
+            });
+        });
+    </script> *@
 }

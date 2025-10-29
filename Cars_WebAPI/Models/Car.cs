@@ -28,6 +28,6 @@ namespace Cars_WebAPI.Models
         public int OwnerId { get; set; }
 
         [ForeignKey("OwnerId")]
-        public Owner Owner { get; set; }
+        public Owner? Owner { get; set; }
     }
 }

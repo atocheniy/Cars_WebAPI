@@ -1,65 +1,75 @@
-﻿@model IEnumerable<Cars_WebAPI.Models.Car>
-
-@{
+﻿@{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Cars</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+<table id="carsTable" class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Brand)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Model)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Speed)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Data)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Weight)
-            </th>
-            <th></th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Speed</th>
+            <th>Price</th>
+            <th>Data</th>
+            <th>Weight</th>
+            <th>Actions</th>
         </tr>
     </thead>
+
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Brand)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Model)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Speed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Data)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Weight)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
     </tbody>
 </table>
+
+<script>
+    $(document).ready(function () {
+        showAllCars();
+    });
+
+    function showAllCars() {
+        $.ajax({
+            url: '/api/Cars',
+            method: "GET",
+            dataType: 'JSON',
+            contentType: 'application/json',
+            cache: false,
+            processData: false,
+            beforeSend: function (xheader) {
+                var token = sessionStorage.getItem(tokenKey);
+                console.log(token);
+                xheader.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data) {
+                console.log(data);
+
+                var table = $('#carsTable');
+
+                table.find("tbody tr").remove();
+
+                $.each(data, function(index, car) {
+                        var row = '<tr>' +
+                            '<td>' + car.brand + '</td>' +
+                            '<td>' + car.model + '</td>' +
+                            '<td>' + car.speed + '</td>' +
+                            '<td>' + car.price + '</td>' +
+                            '<td>' + new Date(car.data).toLocaleDateString() + '</td>' +
+                            '<td>' + car.weight + '</td>' +
+                            '<td>' +
+                                '<a href="/Cars/Edit/' + car.id + '">Edit</a> | ' +
+                                '<a href="/Cars/Details/' + car.id + '">Details</a> | ' +
+                                '<a href="/Cars/Delete/' + car.id + '">Delete</a>' +
+                            '</td>' +
+                        '</tr>';
+                        table.append(row);
+                });
+            },
+            error: function (data) {
+                alert('Error: ' + data.statusText);
+                console.log(data);
+            }
+        })
+    }
+</script>

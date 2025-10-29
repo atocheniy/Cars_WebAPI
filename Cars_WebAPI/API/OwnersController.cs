@@ -1,17 +1,22 @@
 ﻿using Cars_WebAPI.Data;
 using Cars_WebAPI.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
 
 namespace Cars_WebAPI.API
 {
-    public class OwnersController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public class OwnersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
@@ -20,142 +25,102 @@ namespace Cars_WebAPI.API
             _context = context;
         }
 
-        // GET: Owners
-        public async Task<IActionResult> Index()
+        // GET: api/Owners
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<Owner>>> GetOwners()
         {
-            return View(await _context.Owners.ToListAsync());
+            return await _context.Owners.ToListAsync();
         }
 
-        // GET: Owners/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: api/Owners/5
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<Owner>> GetOwner(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var owner = await _context.Owners
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (owner == null)
-            {
-                return NotFound();
-            }
-
-            return View(owner);
-        }
-
-        // GET: Owners/Create
-        [Authorize]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Owners/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Create([Bind("Id,FullName,Email,Phone,Address")] Owner owner)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(owner);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(owner);
-        }
-
-        // GET: Owners/Edit/5
-        [Authorize]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var owner = await _context.Owners.FindAsync(id);
+
             if (owner == null)
             {
                 return NotFound();
             }
-            return View(owner);
+
+            return owner;
         }
 
-        // POST: Owners/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        // PUT: api/Owners/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Email,Phone,Address")] Owner owner)
+        public async Task<IActionResult> PutOwner(int id, Owner owner)
         {
             if (id != owner.Id)
             {
+                return BadRequest();
+            }
+
+            var ownerToUpdate = await _context.Owners.FindAsync(id);
+
+            if (ownerToUpdate == null)
+            {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            ownerToUpdate.FullName = owner.FullName;
+            ownerToUpdate.Email = owner.Email;
+            ownerToUpdate.Phone = owner.Phone;
+            ownerToUpdate.Address = owner.Address;
+            ownerToUpdate.Cars = owner.Cars;
+
+            try
             {
-                try
-                {
-                    _context.Update(owner);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OwnerExists(owner.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                await _context.SaveChangesAsync();
             }
-            return View(owner);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!OwnerExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        // GET: Owners/Delete/5
+        // POST: api/Owners
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<ActionResult<Owner>> PostOwner(Owner owner)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            _context.Owners.Add(owner);
+            await _context.SaveChangesAsync();
 
-            var owner = await _context.Owners
-                .FirstOrDefaultAsync(m => m.Id == id);
+            return CreatedAtAction("GetOwner", new { id = owner.Id }, owner);
+        }
+
+        // DELETE: api/Owners/5
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteOwner(int id)
+        {
+            var owner = await _context.Owners.FindAsync(id);
             if (owner == null)
             {
                 return NotFound();
             }
 
-            return View(owner);
-        }
-
-        // POST: Owners/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var owner = await _context.Owners.FindAsync(id);
-            if (owner != null)
-            {
-                _context.Owners.Remove(owner);
-            }
-
+            _context.Owners.Remove(owner);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return NoContent();
         }
 
+        [AllowAnonymous]
         private bool OwnerExists(int id)
         {
             return _context.Owners.Any(e => e.Id == id);
