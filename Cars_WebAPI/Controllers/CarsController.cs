@@ -55,7 +55,6 @@ namespace Cars_WebAPI.Controllers
         }
 
         // GET: CarsController/Edit/5
-        // [Authorize]
         public async Task<IActionResult> Edit(int id)
         {
             if (id == null) return NotFound();
